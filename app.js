@@ -2,6 +2,10 @@ const body = document.body;
 const input = document.querySelector("input");
 const buttons = document.querySelectorAll("button");
 const backspace = document.querySelector(".backspace");
+const unit = document.querySelector(".unit");
+const mc = document.querySelector(".mc");
+const mr = document.querySelector(".mr");
+const ms = document.querySelector(".ms");
 
 const operators = ["+", "×", "÷", "-", "*", "/"];
 const keywords = ["(" , ")", "!", "."];
@@ -94,25 +98,55 @@ const calculateLog = (expression, isLog) => {
 }
 
 
+const formatExpression = (expression) => {
+    // LOG
+    while (expression.includes("log")) {
+        expression = calculateLog(expression, true);
+    }
 
+    // LN
+    while (expression.includes("ln")) {
+        expression = calculateLog(expression, false);
+    }
+
+    let splitedArr;
+    // Power
+    splitedArr = expression.split("^");
+    expression = splitedArr.join("**");
+
+    // Sin
+    splitedArr = expression.split("sin");
+    expression = splitedArr.join("Math.sin");
+
+    // Cos
+    splitedArr = expression.split("cos");
+    expression = splitedArr.join("Math.cos");
+
+    // tan
+    splitedArr = expression.split("tan");
+    expression = splitedArr.join("Math.tan");
+
+    // Round
+    splitedArr = expression.split("round");
+    expression = splitedArr.join("Math.round");
+
+    // Floor
+    splitedArr = expression.split("floor");
+    expression = splitedArr.join("Math.floor");
+
+    // Ceil
+    splitedArr = expression.split("ceil");
+    expression = splitedArr.join("Math.ceil");
+
+    return expression;
+}
 
 // Expression Evaluation
 const evaluate = (expression) => {
     try {
-        
-        while (expression.includes("log")) {
-            expression = calculateLog(expression, true);
-        }
 
-        while (expression.includes("ln")) {
-            expression = calculateLog(expression, false);
-        }
-
-        // Power
-        splitedArr = expression.split("^");
-        expression = splitedArr.join("**");
-
-
+        expression = formatExpression(expression);
+        console.log(expression);
         return eval(expression);
 
     } catch (error) {
@@ -150,9 +184,7 @@ body.addEventListener("keypress", (e) => {
 
 
 
-
 const handleClick = (key) => {
-    console.log(key);
     if (isNumber(key) || isOperator(key) || isKeyword(key)) {
         input.value += valid(key);
     }
@@ -245,6 +277,66 @@ const handleClick = (key) => {
                 break;
 
             case "sin":
+                input.value += "sin(";
+                break;
+
+            case "cos":
+                input.value += "cos(";
+                break;
+
+            case "tan":
+                input.value += "tan(";
+                break;
+
+            case "round()":
+                input.value += "round(";
+                break;
+            
+            case "ceil()":
+                input.value += "ceil(";
+                break; 
+                
+            case "floor()":
+                input.value += "floor(";
+                break; 
+
+            case "MS":
+                localStorage.setItem("memory", input.value);
+                mc.removeAttribute("disabled");
+                mr.removeAttribute("disabled");
+                ms.setAttribute("disabled", true);
+                break;
+
+            case "MC":
+                localStorage.setItem("memory", "");
+                ms.removeAttribute("disabled");
+                mc.setAttribute("disabled", true);
+                mr.setAttribute("disabled", true);
+                break;
+
+            case "MR":
+                input.value = localStorage.getItem("memory");
+                break;
+            
+            case "M+":
+                var a = +localStorage.getItem("memory");
+                var b = +input.value;
+                var c = a+b;
+                console.log(c);
+                localStorage.setItem("memory", c);
+                input.value = c;
+                break;
+
+            case "M-":
+                var a = +localStorage.getItem("memory");
+                var b = +input.value;
+                var c = a-b;
+                localStorage.setItem("memory", c);
+                input.value = c;
+                break;
+
+            case "DEG":
+                break;
             default:
                 break;
         }
@@ -264,4 +356,11 @@ buttons.forEach((btn) => {
 backspace.addEventListener("click", (e) => {
     
     input.value = input.value.slice(0, input.value.length - 1);
-})
+});
+
+if (localStorage.getItem("memory")) {
+    mc.removeAttribute("disabled");
+    mr.removeAttribute("disabled");
+    ms.setAttribute("disabled", true);
+}
+
